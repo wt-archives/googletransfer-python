@@ -64,7 +64,7 @@ CLIENT_SECRET_FILE = 'credentials.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
-folder_id = 'ADD_GOOGLE_ID_HERE' #Set to id of the parent folder you want to list (should be content folder)
+folder_id = 'enterGoogleFolderIDhere' #Set to id of the parent folder you want to list (should be content folder)
 folder_list = []
 all_folders = []
 file_list = []
@@ -122,7 +122,7 @@ def get_credentials():
     return credentials
 
 
-def get_root_folder(): # get's folder list from original root folder
+def get_root_folder(): # gets folder list from original root folder
 
     credentials = get_credentials()
 
@@ -193,7 +193,7 @@ def get_file_list(): #runs over each folder generating file list, for files over
             results = service.files().list(
                 q="'" + folder + "' in parents",
 
-                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
+                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, sharingUser, owners, lastModifyingUser)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
 
             items = results.get('files', [])
             for item in items:
@@ -214,14 +214,20 @@ def get_file_list(): #runs over each folder generating file list, for files over
                 parents = item.get('parents')
 
                 trashed = item.get('trashed')
+                
+                sharingUser = item.get('sharingUser', 'No sharing users')
+                
+                owners = item.get('owners', 'No owners')
+                
+                lastModifyingUser = item.get('lastModifyingUser' , 'No modify')
 
 
-                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed])
+                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, sharingUser, owners, lastModifyingUser])
 
             page_token = results.get('nextPageToken', None)
             if page_token is None:
                 break
-    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed'])
+    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'sharingUser', 'owners', 'lastModifyingUser'])
     files.drop(files[files['trashed'] == True].index, inplace=True) #removes files which have True listed in trashed, these are files which had been moved to the recycle bin
     foldernumbers = files['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
     filenumbers = (~files['mimeType'].str.contains('application/vnd.google-apps.folder')).sum()
@@ -237,4 +243,3 @@ if __name__ == '__main__':
     merge()
     print('Generating file metadata list')
     get_file_list()
-
