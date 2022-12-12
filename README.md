@@ -7,7 +7,7 @@ Python 3 is required to be installed. The Google Client library is required to r
 
 For the download the CSV Validator cmd line is required. This can be downloaded here https://github.com/digital-preservation/csv-validator/releases/tag/1.2-RC2 (Download csv-validator-cmd-1.2-RC2-application.zip) This should be unpacked in the directory the scripts are run. This will validate the download and metadata.
 
-The scripts need to be run in order as each script uses the output of the previous one. They should be run in this order - 1. GoogleApiFileList.py 2. GoogleDriveMetadata.py 3. addpdfversion.py 4. googleDownload.py
+The scripts need to be run in order as each script uses the output of the previous one. They should be run in this order - 1. GoogleApiFileList.py 2. GoogleDriveMetadata.py 3. clean_metadata.py 4. parent_name.py
 
 On first run both the scripts googleApiFileList.py and googleDownload.py will ask for a Google account (which has access to the relevant files) to give access to the script. The script will state the scope it needs to run. GoogleApiFileList.py will ask for read only access to the metadata of files. GoogleDownload.py requires read only access to files and metadata.
 
@@ -24,21 +24,33 @@ Current metadata captured from the Google Drive API by this script is listed bel
 - modifiedTime
 - parents (Google ID of parent folder)
 - trashed (whether the folder has been sent to the recycle bin, all true entries are removed so all entries will state FALSE)
+- sharingUser
+- owners
+- lastModifyingUser
 
 2. GoogleDriveMetadataConvert.py takes the output GoogleAPIMetadata.csv and starts to convert it to the TNA template. This includes the following steps. It requires the GoogleAPIMetadata.csv to be in the same directory the script is run from.
 
-- It will add in closure metadata columns and standard TNA fields. E.g. Copyright, legal status
+- adds in closure metadata columns and standard TNA fields. E.g. Copyright, legal status (not used by Westtown)
 - adds a 'content' folder as the highest directory level
 - reconstructs the filepath using id and parent ids
 - renames google docs with the extensions of their export formats, adds a 'archivist_note' column which details actions taken
 - renames problem characters /\:\*?"<>| with an _ 
 - renames duplicate file and folder names in the same directory, adds an incremental number
+- removes unnecessary text from the 'lastModifyingUser' field
+- adds 'language' field with default as 'english'
 
-It retains some fields such as mimeType, which will not be retained in the final CSV, as these are used in the GoogleDownload script. It will output a file called GoogleTestMetadata.csv
+It will output a file called GoogleTestMetadata.csv
 
-3. The third script addpdfversion.py will add a PDF version for each Google format to the metadata, the download can be run with or without this step but no PDF version will be downloaded for Google formats if not.
+3. clean_metadata.py takes the output GoogleTestMetadata.csv and transforms the content into metadata compatible with the Dublin Core template the Archives uses for ingestion into Preservica.  It outputs a file called “metadata-cleaned.csv”
 
-4. The fourth script is googleDownload.py. It will use the GoogleTestMetadata.csv to identify the files to be downloaded. The download area will default to a folder in the directory the script is run from called 'Downloaded_Files/' this can be edited by changing the downloadPath variable.
+4. parent_name.py takes the output from “metadata-cleaned.csv” and names the top parent folder from which you pulled the metadata.  You will need to add the name of the top-level parent folder in line 17 and then run the script.  It outputs a file called “metadata_FINAL.csv”
+
+
+***********************************************************************************************************************************************************************
+These steps have not been tested or modified by Westtown.
+The script addpdfversion.py will add a PDF version for each Google format to the metadata, the download can be run with or without this step but no PDF version will be downloaded for Google formats if not.
+
+The script is googleDownload.py. It will use the GoogleTestMetadata.csv to identify the files to be downloaded. The download area will default to a folder in the directory the script is run from called 'Downloaded_Files/' this can be edited by changing the downloadPath variable.
  
 It will download the files in their original folder structure. Non-Google formats are downloaded in their original formats. Google formats are downloaded in specified export formats (generally microsoft office as well as a PDF version).
 
