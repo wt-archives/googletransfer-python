@@ -64,7 +64,7 @@ CLIENT_SECRET_FILE = 'credentials.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
-folder_id = 'enterGoogleFolderIDhere' #Set to id of the parent folder you want to list (should be content folder)
+folder_id = '1d9ck_RTGPnLy57Nk4S6NQbzOShI9GLxn' #Set to id of the parent folder you want to list (should be content folder)
 folder_list = []
 all_folders = []
 file_list = []
@@ -243,3 +243,4 @@ if __name__ == '__main__':
     merge()
     print('Generating file metadata list')
     get_file_list()
+
