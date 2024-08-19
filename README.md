@@ -28,7 +28,9 @@ Current metadata captured from the Google Drive API by this script is listed bel
 - owners
 - lastModifyingUser
 
-2. GoogleDriveMetadataConvert.py takes the output GoogleAPIMetadata.csv and starts to convert it to the TNA template. This includes the following steps. It requires the GoogleAPIMetadata.csv to be in the same directory the script is run from.
+2. convert_shortcuts.py takes the output GoogleAPIMetadata.csv and adds the google_id and and mimeType for materials which are linked in the folder as shortcuts. It requires the GoogleAPIMetadata.csv to be in the same directory the script is run from.  It outputs the file metadata_shortcuts.csv.
+
+3. GoogleDriveMetadataConvert.py takes the output metadata_shortcuts.csv and starts to convert it to the TNA template. This includes the following steps. It requires the metadata_shortcuts.csv to be in the same directory the script is run from.
 
 - adds in closure metadata columns and standard TNA fields. E.g. Copyright, legal status (not used by Westtown)
 - adds a 'content' folder as the highest directory level
@@ -36,7 +38,7 @@ Current metadata captured from the Google Drive API by this script is listed bel
 - renames google docs with the extensions of their export formats, adds a 'archivist_note' column which details actions taken
 - renames problem characters /\:\*?"<>| with an _ 
 - renames duplicate file and folder names in the same directory, adds an incremental number
-- removes unnecessary text from the 'lastModifyingUser' field
+- removes unnecessary text from the 'lastModifyingUser', 'google_id', and 'google_parent_id' fields
 - adds 'language' field with default as 'english'
 
 It will output a file called GoogleTestMetadata.csv
@@ -47,7 +49,7 @@ It will output a file called GoogleTestMetadata.csv
 
 
 ***********************************************************************************************************************************************************************
-These steps have not been tested or modified by Westtown.
+The following steps have not been tested or modified by Westtown.
 The script addpdfversion.py will add a PDF version for each Google format to the metadata, the download can be run with or without this step but no PDF version will be downloaded for Google formats if not.
 
 The script is googleDownload.py. It will use the GoogleTestMetadata.csv to identify the files to be downloaded. The download area will default to a folder in the directory the script is run from called 'Downloaded_Files/' this can be edited by changing the downloadPath variable.
